@@ -1,0 +1,19 @@
+#!/usr/bin/env recipe -F
+
+$.R 'default',['flagA','argB','flagC','argD'],(g)->
+	new Promise (rs,rj)=>
+		console.log "#{g[0]} #{g[1]} #{g[2]} #{g[3]}"
+
+#defaults
+$.set 'flagA',false
+$.set 'argB','-' 
+$.set 'flagC',false
+$.set 'argD','-'
+
+#special target 'OPTIONS' 
+$.set 'OPTIONS',
+	a:'flagA'
+	b:'argB:' #':' indicates having argument
+
+#command line: recipe -a -b Hello --flagC --argD=World
+#->true Hello true World

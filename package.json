@@ -1,0 +1,25 @@
+{
+  "name": "recipe-js",
+  "description": "GNU make like task launcher.Supports prerequisites/Promise/child process/cache/deriving/CLI.",
+  "main": "recipejs.js",
+  "bin": {
+    "recipe": "./cli.js"
+  },
+  "@PARTPIPE@VERKEY@PARTPIPE@": "@PARTPIPE@VERSION@PARTPIPE@",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "partpipe": "^0.4.0",
+    "coffee-jshint": "^0.2.6",
+    "coffee-script": "^1.12.4"
+  },
+  "tags": [],
+  "author": {
+    "name": "kssfilo"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/kssfilo/recipe-js.git"
+  }
+}

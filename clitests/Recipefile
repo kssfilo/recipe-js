@@ -1,0 +1,19 @@
+$.R 'default',['prereq0','prereq1','prereq2'],(g)->
+	console.log "#{g.prereq0} #{g.prereq1} #{g.prereq2}"
+
+$.R 'prereq0',->
+	new Promise (rs,rj)->
+		setTimeout ->
+			rs 'Hello'
+		,1000
+
+$.R 'prereq1','prereq1A',(g)->
+	g.replace /^w/,'W'
+
+$.set 'prereq1A','world'
+
+$.R 'prereq2','prereq2A',(g)->
+	@S 'sed s/^r/R/',g
+	.then @P 'sed s/js$/Js/'
+
+$.R 'prereq2A',->'recipejs'
