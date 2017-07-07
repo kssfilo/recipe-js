@@ -13,7 +13,7 @@ RecipeJs=require('recipe-js').RecipeJs;
 $=new RecipeJs();
 
 $.R('default',['prereq0','prereq1'],(g)=>{
-	console.log(`${g.prereq0} ${g.prereq1}`);
+	return(`${g.prereq0} ${g.prereq1}`);
 });
 
 $.set('prereq0','Hello');
@@ -26,7 +26,10 @@ $.R('prereq1',()=>{
 	});
 });
 
-$.make('default');
+$.make('default')
+.then((g)=>{
+	console.log(g);
+});
 
 //-> Hello World
 ```
