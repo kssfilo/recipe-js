@@ -1,6 +1,6 @@
 {
   "name": "recipe-js",
-  "description": "GNU make like task launcher.Supports prerequisites/Promise/child process/cache/deriving/CLI.",
+  "description": "A gulp/GNU make like task launcher.Supports Dependencies/Inference Rules/Promise/Child Process/Cache/Deriving/CLI.",
   "main": "recipejs.js",
   "bin": {
     "recipe": "./cli.js"

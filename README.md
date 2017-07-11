@@ -1,7 +1,7 @@
 recipe-js
 ==========
 
-GNU make like task launcher.Supports prerequisites/Promise/child process/cache/deriving/CLI.
+A gulp/GNU make like task launcher.Supports Dependencies/Inference Rules/Promise/Child Process/Cache/Deriving/CLI.
 
 ## Examples
 
@@ -56,6 +56,31 @@ $.main('default');
 
 //-> Hello Mr.username
 //$.P(cmd) is short hand for (stdin)=>$.S(cmd,stdin)
+```
+
+### Inference Rules(.)
+
+```
+RecipeJs=require('recipe-js').RecipeJs;
+
+$=new RecipeJs(); 
+
+$.R('.html','.md',(g)=>{
+	return g.replace(/^## (.*)/,'<h2>$1</h2>')
+});
+
+$.set('prereq0.md','## Hello');
+$.set('prereq1.md','## RecipeJs');
+
+$.R('default',['prereq0.html','prereq1.html'],(g)=>{
+	return(g['prereq0.html']+g['prereq1.html']);
+});
+
+$.make('default')
+.then((g)=>{
+	console.log(g);
+});
+//-> <h2>Hello</h2><h2>RecipeJs</h2>
 ```
 
 ### Cache / Trace
@@ -174,4 +199,10 @@ sudo npm install -g recipe-js
 
 ## Change Log
 
-- 0.1.x:first release
+- 0.2.0:added Inference Rules
+- 0.1.0:first release
+
+## To Do
+
+- Builtin File IO / Globbing
+

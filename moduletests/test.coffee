@@ -13,7 +13,7 @@ m.R 'test',['log','result','target'],(g)->
 	else
 		return "#{g.target} OK"
 
-ts=['extends','child','basic','shell','loop','args','schedule'].map (x)->
+ts=['extends','child','basic','shell','loop','args','schedule','abstruct'].map (x)->
 	r=new RecipeNodeJs
 		extends:m
 		cacheFile:"#{x}.json"

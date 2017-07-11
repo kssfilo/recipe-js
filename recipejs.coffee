@@ -21,13 +21,13 @@ class RecipeJs
 		@set k,v for k,v of g.set if g.set?
 
 	R:(obj,args...)->
-		if args.length is 1 and typeof(args[0]) isnt 'function'
+		if args.length is 1 and typeof(args[0]) not in ['function','object']
 			@T "set:#{obj}=#{args[0]}"
 			@set obj,args[0]
 			return
 		
 		prerequisites=null
-		if args.length>=2
+		if args.length>=2 or typeof(args[0]) isnt 'function'
 			if args[0] instanceof Array
 				prerequisites=args.shift()
 			else if typeof(args[0]) is 'string'
@@ -35,7 +35,7 @@ class RecipeJs
 
 		func=null
 		if typeof(args[0]) is 'function'
-			func=args.shift() 
+			func=args.shift()
 
 		@T "task:#{obj},[#{prerequisites}]"
 		
@@ -74,7 +74,7 @@ class RecipeJs
 		@make obj
 
 	make:(obj,stack=[])->
-		@T "make #{obj},stack:#{stack}"
+		@T "make #{obj},stack:[#{stack}]"
 
 		if @_cache[obj]? and (@_cache[obj].expire is null or @_cache[obj].expire>new Date().getTime())
 			@C "cached:#{obj},#{if !@_cache[obj].expire? then 'infinity' else new Date(@_cache[obj].expire)}"
@@ -84,20 +84,54 @@ class RecipeJs
 			@T "has #{obj}=#{h}"
 			return Promise.resolve h
 		
-		t=@_tasks[obj]
+
+		searchTask=(obj)=>
+			t=@_tasks[obj]
+			unless t?
+				target=@
+				while target.extends?
+					target=target.extends
+					if target._tasks[obj]?
+						t=target._tasks[obj]
+						break
+			t
+
+		t=searchTask obj
+
 		unless t?
+			if m=obj.match /([^\.]+)\.([^\.]+)/
+				id=m[1]
+				ext=m[2]
+
+				t=searchTask ".#{ext}"
+				if t?
+					@T "making new task from abstruct task:.#{ext}"
+
+					prerequisites=[]
+					makeRealId=(id,obj)->
+						if obj.match /^\./
+							"#{id}#{obj}"
+						else
+							obj
+
+					if typeof(t.prerequisites) is 'string'
+						prerequisites=makeRealId id,t.prerequisites
+					else if t.prerequisites instanceof Array
+						prerequisites=makeRealId(id,i) for i in t.prerequisites
+
+					@R obj,prerequisites,t.func
+					return @make obj,stack
+
+			if @parent?
+				return @parent.make obj,stack
+
 			target=@
 			while target.extends?
 				target=target.extends
-				if target._tasks[obj]?
-					t=target._tasks[obj]
-					break
-
-			unless t?
 				if target.parent?
 					return target.parent.make obj,stack
-				else
-					return Promise.reject "No recipe:'#{obj}'"
+
+			return Promise.reject "No recipe:'#{obj}'"
 
 		if stack.indexOf(obj)>=0
 			throw "Loop:#{obj},[#{stack}]"
@@ -232,7 +266,7 @@ class RecipeJs
 			,1000
 
 class RecipeNodeJs extends RecipeJs
-	className:'RecipeNodejs'
+	className:'RecipeNodeJs'
 
 	constructor:(g={})->
 		super g
