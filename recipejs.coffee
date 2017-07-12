@@ -410,8 +410,12 @@ class RecipeNodeJs extends RecipeJs
 	P:(cmd)->
 		(x)=>@S cmd,x
 
-	F:(extentionOrFilename)->
-		@_files[extentionOrFilename]=true
+	F:(extentionOrFilenameOrArray)->
+		if extentionOrFilenameOrArray instanceof Array
+			@_files[i]=true for i in extentionOrFilenameOrArray
+		else
+			@_files[extentionOrFilenameOrArray]=true
+		null
 	
 	setByArgv:(args,dict=null)->
 		remaining=[]

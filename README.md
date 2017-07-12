@@ -219,6 +219,7 @@ sudo npm install -g recipe-js
 
 ## Change Log
 
+- 0.3.1:allows syntax like a '$.F([".html",".md"])'
 - 0.3.0:added file IO
 - 0.2.0:added Inference Rules
 - 0.1.0:first release

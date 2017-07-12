@@ -74,15 +74,13 @@ if process.argv[2] in ['-h','-?']
 	Example:(file/inference rules)
 	-----
 	# $.F tells that specified target(extension/filename) is files.
-	$.F '.md'
-	$.F '.html'
+	$.F ['.md','.html']
 
-	$.R '.html','.md',$.P 'sed -E "s/^# (.*)/<h1>\\1<\\/h1>/"'
+	$.R '.html','.md',$.P 'md2html'
 
-	$.R 'default',['test.html']
-
-	#->file test.md(# Hello) -> file test.html (<h1>Hello</h1>)
-	#file system's timestamp is used for update decision
+	#>recipe test.html
+	# ->file test.md(# Hello) -> file test.html (<h1>Hello</h1>)
+	# file system's timestamp is used for update decision
 	"""
 	process.exit 0
 
