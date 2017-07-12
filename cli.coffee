@@ -13,7 +13,7 @@ if process.argv[2] in ['-h','-?']
 	$.O """
 	recipe [-F <Recipefile>] [target] [-<option> --<option> ..]
 
-	GNU make like task launcher.Supports prerequisites/Promise/child process.
+	A gulp/GNU make like task launcher.Supports Dependencies/Inference Rules/Promise/Child Process/Cache/Deriving/CLI.
 
 	Options:
 
@@ -25,18 +25,18 @@ if process.argv[2] in ['-h','-?']
 	-----
 	# coffee script syntax
 
-	# 'default' needs 'prereq0-3', result will be 'Hello World RecipeJs' 
+	# 'default' needs 'prereq0-3', result -> 'Hello World RecipeJs' 
 	$.R 'default',['prereq0','prereq1','prereq2'],(g)->
 		console.log "\#{g.prereq0} \#{g.prereq1} \#{g.prereq2}"
 
-	# 'prereq0' needs no prerequisite, will be 'Hello'
+	# 'prereq0' needs no prerequisite, -> 'Hello'
 	$.R 'prereq0',->
 		new Promise (rs,rj)->
 			setTimeout ->
 				rs 'Hello'
 			,1000
 
-	# 'prereq1' needs 'prereq1A', g is 'world' , 'prereq1' will be 'World'
+	# 'prereq1' needs 'prereq1A', g is 'world' , 'prereq1' -> 'World'
 	$.R 'prereq1','prereq1A',(g)->
 		g.replace /^w/,'W'
 
@@ -52,7 +52,7 @@ if process.argv[2] in ['-h','-?']
 
 	$.R 'prereq2A',->'recipejs'
 	-----
-	Another example:(with option)
+	Example:(with option)
 	-----
 	$.R 'default',['flagA','argB','flagC','argD'],(g)->
 		console.log "\#{g.flagA} \#{g.argB} \#{g.flagC} \#{g.argD}"
@@ -70,6 +70,19 @@ if process.argv[2] in ['-h','-?']
 
 	#command line: recipe -a -b Hello --flagC --argD=World
 	#->true Hello true World
+	-----
+	Example:(file/inference rules)
+	-----
+	# $.F tells that specified target(extension/filename) is files.
+	$.F '.md'
+	$.F '.html'
+
+	$.R '.html','.md',$.P 'sed -E "s/^# (.*)/<h1>\\1<\\/h1>/"'
+
+	$.R 'default',['test.html']
+
+	#->file test.md(# Hello) -> file test.html (<h1>Hello</h1>)
+	#file system's timestamp is used for update decision
 	"""
 	process.exit 0
 

@@ -83,6 +83,26 @@ $.make('default')
 //-> <h2>Hello</h2><h2>RecipeJs</h2>
 ```
 
+### File IO
+
+```
+RecipeNodeJs=require('recipe-js').RecipeNodeJs;
+
+$=new RecipeNodeJs(); 
+
+// $.F tells that specified targets(extension/filename) are files.
+$.F('.md');
+$.F('.html');
+
+$.R('.html','.md',$.P('md2html'));
+
+$.R('default',['prereq0.html']);
+
+$.main('default'); //must be main() not make() for saving results
+//-> file prereq0.md(# Hello) -> file prereq0.html (<h1>Hello</h1>) 
+//file system's timestamp is used for update decision
+```
+
 ### Cache / Trace
 
 ```
@@ -199,10 +219,7 @@ sudo npm install -g recipe-js
 
 ## Change Log
 
+- 0.3.0:added file IO
 - 0.2.0:added Inference Rules
 - 0.1.0:first release
-
-## To Do
-
-- Builtin File IO / Globbing
 

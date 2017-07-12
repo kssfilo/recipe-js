@@ -17,6 +17,7 @@ class RecipeJs
 		@_cache={}
 		@_schedules={}
 		@_timerHandle=null
+		@_timeStamps={}
 		{@parent,@extends,@traceEnabled,@traceScheduler}=g
 		@set k,v for k,v of g.set if g.set?
 
@@ -48,6 +49,7 @@ class RecipeJs
 		cacheObj=
 			v:v
 			expire:if expireSeconds? then new Date().getTime()+expireSeconds*1000 else null
+			updated:new Date().getTime()
 		
 		@_cache[obj]=cacheObj
 		v
@@ -73,55 +75,109 @@ class RecipeJs
 		@_objs={}
 		@make obj
 
+	getPrerequisites:(task)->
+		t=task
+		prerequisites=[]
+		if typeof(t.prerequisites) is 'string'
+			prerequisites.push t.prerequisites
+		else if t.prerequisites instanceof Array
+			prerequisites=t.prerequisites
+		prerequisites
+
+	getTimeStamp:(obj,stack=[])->
+		@T "Checking timestamp of '#{obj}'"
+
+		if t=@_timeStamps[obj]
+			@C "#{obj}:#{t}"
+			return t
+
+		updated=0
+		if c=@_cache[obj]
+			updated=c.updated ? 0
+			if c.expire and c.expire>new Date().getTime()
+				@C "#{obj} has cache,but expired"
+				updated=-1
+
+			@C "#{obj} has cache,timestamp is #{updated}"
+			return updated if c.expire is null and !c.isFile
+
+		return updated if updated is -1
+
+		###
+		if @get(obj)?
+			return @_timeStamps[obj]=0
+		###
+
+		if t=@searchTask obj
+			@C "Checking prerequisites of '#{obj}'"
+			prs=@getPrerequisites t
+			for i in prs
+				pt=@getTimeStamp i
+				if pt is -1
+					updated=-1
+					break
+				if pt>updated
+					updated=-1
+
+		@C "updated '#{obj}' s timestamp is #{updated}"
+		return @_timeStamps[obj]=updated
+
+	getCache:(obj,stack=[])->
+		if @_cache[obj]?
+			ts=@getTimeStamp obj,stack
+			if ts isnt -1 and ts<=new Date().getTime()
+				return @_cache[obj].v
+		null
+
+	searchTask:(obj)->
+		t=@_tasks[obj]
+		unless t?
+			target=@
+			while target.extends?
+				target=target.extends
+				if target._tasks[obj]?
+					t=target._tasks[obj]
+					break
+
+			unless t?
+				if m=obj.match /([^\.]+)\.([^\.]+)/
+					id=m[1]
+					ext=m[2]
+
+					t=@searchTask ".#{ext}"
+					if t?
+						@T "making new task from abstruct task:.#{ext}"
+
+						prerequisites=[]
+						makeRealId=(id,obj)->
+							if obj.match /^\./
+								"#{id}#{obj}"
+							else
+								obj
+
+						if typeof(t.prerequisites) is 'string'
+							prerequisites=makeRealId id,t.prerequisites
+						else if t.prerequisites instanceof Array
+							prerequisites=makeRealId(id,i) for i in t.prerequisites
+
+						@R obj,prerequisites,t.func
+						return @searchTask obj
+		t
+
 	make:(obj,stack=[])->
 		@T "make #{obj},stack:[#{stack}]"
 
-		if @_cache[obj]? and (@_cache[obj].expire is null or @_cache[obj].expire>new Date().getTime())
-			@C "cached:#{obj},#{if !@_cache[obj].expire? then 'infinity' else new Date(@_cache[obj].expire)}"
-			@_objs[obj]=@_cache[obj].v
+		if (c=@getCache obj,stack) isnt null
+			@C "cached:#{c}"
+			@_objs[obj]=c
 
 		if h=@get(obj)?
 			@T "has #{obj}=#{h}"
 			return Promise.resolve h
-		
 
-		searchTask=(obj)=>
-			t=@_tasks[obj]
-			unless t?
-				target=@
-				while target.extends?
-					target=target.extends
-					if target._tasks[obj]?
-						t=target._tasks[obj]
-						break
-			t
-
-		t=searchTask obj
+		t=@searchTask obj
 
 		unless t?
-			if m=obj.match /([^\.]+)\.([^\.]+)/
-				id=m[1]
-				ext=m[2]
-
-				t=searchTask ".#{ext}"
-				if t?
-					@T "making new task from abstruct task:.#{ext}"
-
-					prerequisites=[]
-					makeRealId=(id,obj)->
-						if obj.match /^\./
-							"#{id}#{obj}"
-						else
-							obj
-
-					if typeof(t.prerequisites) is 'string'
-						prerequisites=makeRealId id,t.prerequisites
-					else if t.prerequisites instanceof Array
-						prerequisites=makeRealId(id,i) for i in t.prerequisites
-
-					@R obj,prerequisites,t.func
-					return @make obj,stack
-
 			if @parent?
 				return @parent.make obj,stack
 
@@ -136,11 +192,7 @@ class RecipeJs
 		if stack.indexOf(obj)>=0
 			throw "Loop:#{obj},[#{stack}]"
 
-		prerequisites=[]
-		if typeof(t.prerequisites) is 'string'
-			prerequisites.push t.prerequisites
-		else if t.prerequisites instanceof Array
-			prerequisites=t.prerequisites
+		prerequisites=@getPrerequisites t
 
 		px=[]
 		for i in prerequisites
@@ -166,18 +218,22 @@ class RecipeJs
 			rs=null
 			if typeof(t.prerequisites) is 'string'
 				rs=@get(t.prerequisites)
-			else if t.prerequisites instanceof Array
+			else if t.prerequisites instanceof Array and t.prerequisites.length>0
 				#rs=(@get(i) for i in t.prerequisites)
 				rs=[]
 				for i in t.prerequisites
 					v=@get i
 					rs.push v
 					rs[i]=v
-
+			else
+				rs=obj
 
 			@C "#{obj}<-[#{rs ? ''}]"
 
-			r=t.func.call @,rs
+			if t?.func? and typeof(t.func) is 'function'
+				r=t.func.call @,rs
+			else
+				r=rs
 			unless r? and typeof(r.then) is 'function'
 				@_objs[obj]=r
 				delete @_running[obj] if @_running[obj]?
@@ -275,6 +331,9 @@ class RecipeNodeJs extends RecipeJs
 			{@cacheFile}=g
 			@loadCache()
 
+		@_files={}
+		@_saveFiles={}
+
 	loadCache:->
 		try
 			t=require('fs').readFileSync @cacheFile
@@ -285,6 +344,15 @@ class RecipeNodeJs extends RecipeJs
 			@_cache={}
 
 	saveCache:->
+		for k,v of @_saveFiles
+			@T "saveFile:#{k}"
+			require('fs').writeFileSync k,@get(k)
+			delete @_saveFiles[k]
+
+		for k,v of @_cache
+			if v.isFile
+				delete @_cache[k]
+
 		return unless @cacheFile?
 		@T "saveCache:#{JSON.stringify @_cache}"
 		require('fs').writeFileSync @cacheFile,JSON.stringify @_cache
@@ -342,6 +410,9 @@ class RecipeNodeJs extends RecipeJs
 	P:(cmd)->
 		(x)=>@S cmd,x
 
+	F:(extentionOrFilename)->
+		@_files[extentionOrFilename]=true
+	
 	setByArgv:(args,dict=null)->
 		remaining=[]
 		j=0
@@ -371,6 +442,40 @@ class RecipeNodeJs extends RecipeJs
 
 		remaining
 
+	isFile:(obj)->
+		m=obj.match /([^\.]+)\.([^\.]+)/
+		(@_files[obj]? or (m? and @_files[".#{m[2]}"]?))
+	
+	getTimeStamp:(obj,stack=[])->
+		if !@_cache[obj]? and @isFile(obj)
+			@C "'#{obj}' is a file, check filesystem"
+			try
+				stat=require('fs').statSync obj
+				@_cache[obj]=
+					v:require('fs').readFileSync(obj)?.toString()
+					updated:new Date(stat.mtime).getTime()
+					expire:null
+					isFile:true
+			catch
+				@C "'#{obj}' does't exist, try to make"
+				return -1
+
+		super obj,stack
+
+	getCache:(obj,stack=[])->
+		if !@_cache[obj]? and @isFile(obj)
+			ts=@getTimeStamp obj,stack
+			@C "#{obj},#{ts}"
+
+			if ts isnt -1 and ts<=new Date().getTime()
+				return @_cache[obj].v
+			else
+				@C "mark to save :#{obj}"
+				@_saveFiles[obj]=true
+				null
+		else
+			super obj,stack
+
 	main:(objOrArray,arrayTarget=null)->
 		try
 			if objOrArray instanceof Array
@@ -385,7 +490,6 @@ class RecipeNodeJs extends RecipeJs
 			else
 				@make objOrArray
 				.then (x)=>
-					@O JSON.stringify x if x?
 					@saveCache()
 					process.exit 0
 				.catch (e)=>

@@ -5,7 +5,7 @@
 trace=false
 
 m=new RecipeNodeJs
-	traceEnabled:false
+	traceEnabled:trace
 
 m.R 'A','B',(g)->
 	@T "making A"
@@ -20,17 +20,17 @@ m.R 'B',(g)->
 
 c=new RecipeNodeJs
 	parent:m
-	traceEnabled:false
+	traceEnabled:trace
 
 c.R 'C','A',(g)->
 	"#{g}C"
 
 gc=new RecipeNodeJs
 	parent:c
-	traceEnabled:false
+	traceEnabled:trace
 
 gc.R 'D','C',(g)->
-	"#{g}D"
+	@O JSON.stringify "#{g}D"
 
 
 gc.main 'D'

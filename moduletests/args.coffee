@@ -9,7 +9,7 @@ m.R 'A',['value1','longoption','flag1','flag2'],(g)->
 	r=g.value1+g.longoption
 	r*=2 if g.flag1
 	r*=3 if g.flag2
-	r
+	console.log JSON.stringify r
 
 m.R 'value1',0
 m.R 'longoption',0

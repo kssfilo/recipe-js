@@ -1,0 +1,13 @@
+#!/usr/bin/env recipe -F
+
+$.F '.md'
+$.F '.html'
+
+$.R '.html','.md',$.P 'sed -E "s/^# (.*)/<h1>\\1<\\/h1>/"'
+
+$.R 'default',['test.html']
+
+$.main 'default'
+
+#$.R '.md',(g)=>Fs.readFileSync g
+

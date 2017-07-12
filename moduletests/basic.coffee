@@ -7,7 +7,7 @@ m=new RecipeNodeJs
 
 m.R 'oyakodon',['egg','chiken'],(g)->
 	@T "making oyakodon[#{g}]"
-	g.egg+g.chiken
+	@O JSON.stringify(g.egg+g.chiken)
 
 m.R 'egg','god',(g)->
 	new Promise (ok,ng)=>
