@@ -65,7 +65,7 @@ RecipeJs=require('recipe-js').RecipeJs;
 
 $=new RecipeJs(); 
 
-$.R('.html','.md',(g)=>{
+$.R('%.html','%.md',(g)=>{
 	return g.replace(/^## (.*)/,'<h2>$1</h2>')
 });
 
@@ -81,6 +81,7 @@ $.make('default')
 	console.log(g);
 });
 //-> <h2>Hello</h2><h2>RecipeJs</h2>
+//% is wildcard, regex is ok like '(.*)\.html','$1.md'
 ```
 
 ### File IO
@@ -91,10 +92,10 @@ RecipeNodeJs=require('recipe-js').RecipeNodeJs;
 $=new RecipeNodeJs(); 
 
 // $.F tells that specified targets(extension/filename) are files.
-$.F('.md');
-$.F('.html');
+$.F('%.md');
+$.F('%.html');
 
-$.R('.html','.md',$.P('md2html'));
+$.R('%.html','%.md',$.P('md2html'));
 
 $.R('default',['prereq0.html']);
 
@@ -219,6 +220,8 @@ sudo npm install -g recipe-js
 
 ## Change Log
 
+- 0.4.0:(breaking change) using wildcard %  and regex for inference rules/file io
+- 0.4.0:(breaking change) added -F option to cli for enable tracing (old -F option has been -f)
 - 0.3.1:allows syntax like a '$.F([".html",".md"])'
 - 0.3.0:added file IO
 - 0.2.0:added Inference Rules

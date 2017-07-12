@@ -1,4 +1,4 @@
-#!/usr/bin/env recipe -F
+#!/usr/bin/env recipe -f
 
 $.R 'default',['flagA','argB','flagC','argD'],(g)->
 	new Promise (rs,rj)=>

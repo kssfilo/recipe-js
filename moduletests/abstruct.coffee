@@ -5,7 +5,7 @@
 $=new RecipeNodeJs
 	traceEnabled:false
 
-$.R '.html','.md',$.P 'sed -E "s/^# (.*)/<h1>\\1<\\/h1>/"'
+$.R '%.html','%.md',$.P 'sed -E "s/^# (.*)/<h1>\\1<\\/h1>/"'
 
 $.set 'test.md','# Hello World'
 $.set 'test2.md','# Hello RecipeJs'

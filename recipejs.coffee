@@ -1,7 +1,6 @@
 ###jshint -W084###
 ###globals Promise###
 
-#Promise=require 'promise'
 class RecipeJs
 	className:'RecipeJs'
 
@@ -20,8 +19,19 @@ class RecipeJs
 		@_timeStamps={}
 		{@parent,@extends,@traceEnabled,@traceScheduler}=g
 		@set k,v for k,v of g.set if g.set?
+	
+	_normalizeTarget:(obj)->
+		if obj.indexOf('%')>=0
+			obj=obj.replace /\./g,'\.'
+			obj=obj.replace /%/g,'(.+)'
+		obj
+	_normalizePrerequisite:(obj)->
+		count=1
+		obj.replace /%/g,(m,o,s)=>"$#{count++}"
 
 	R:(obj,args...)->
+		obj=@_normalizeTarget obj
+
 		if args.length is 1 and typeof(args[0]) not in ['function','object']
 			@T "set:#{obj}=#{args[0]}"
 			@set obj,args[0]
@@ -31,8 +41,9 @@ class RecipeJs
 		if args.length>=2 or typeof(args[0]) isnt 'function'
 			if args[0] instanceof Array
 				prerequisites=args.shift()
+				prerequisites=prerequisites.map (x)=>@_normalizePrerequisite x
 			else if typeof(args[0]) is 'string'
-				prerequisites=args.shift()
+				prerequisites=@_normalizePrerequisite args.shift()
 
 		func=null
 		if typeof(args[0]) is 'function'
@@ -140,28 +151,28 @@ class RecipeJs
 					break
 
 			unless t?
-				if m=obj.match /([^\.]+)\.([^\.]+)/
-					id=m[1]
-					ext=m[2]
+				m=null
+				regex=null
+				for k,v of @_tasks
+					regex=new RegExp "^#{k}$"
+					if m=obj.match regex
+						t=v
+						break
 
-					t=@searchTask ".#{ext}"
-					if t?
-						@T "making new task from abstruct task:.#{ext}"
+				if t?
+					@T "making new task from abstruct task:.#{k}"
 
-						prerequisites=[]
-						makeRealId=(id,obj)->
-							if obj.match /^\./
-								"#{id}#{obj}"
-							else
-								obj
+					prerequisites=[]
+					makeRealId=(regex,target,prereq)->target.replace regex,prereq
 
-						if typeof(t.prerequisites) is 'string'
-							prerequisites=makeRealId id,t.prerequisites
-						else if t.prerequisites instanceof Array
-							prerequisites=makeRealId(id,i) for i in t.prerequisites
 
-						@R obj,prerequisites,t.func
-						return @searchTask obj
+					if typeof(t.prerequisites) is 'string'
+						prerequisites=makeRealId regex,obj,t.prerequisites
+					else if t.prerequisites instanceof Array
+						prerequisites=makeRealId(regex,obj,t.prerequisites) for i in t.prerequisites
+
+					@R obj,prerequisites,t.func
+					return @searchTask obj
 		t
 
 	make:(obj,stack=[])->
@@ -412,9 +423,9 @@ class RecipeNodeJs extends RecipeJs
 
 	F:(extentionOrFilenameOrArray)->
 		if extentionOrFilenameOrArray instanceof Array
-			@_files[i]=true for i in extentionOrFilenameOrArray
+			@_files[@_normalizeTarget i]=true for i in extentionOrFilenameOrArray
 		else
-			@_files[extentionOrFilenameOrArray]=true
+			@_files[@_normalizeTarget extentionOrFilenameOrArray]=true
 		null
 	
 	setByArgv:(args,dict=null)->
@@ -447,8 +458,14 @@ class RecipeNodeJs extends RecipeJs
 		remaining
 
 	isFile:(obj)->
-		m=obj.match /([^\.]+)\.([^\.]+)/
-		(@_files[obj]? or (m? and @_files[".#{m[2]}"]?))
+		return true if @_files[obj]?
+		r=false
+		for k of @_files
+			regex=new RegExp "^#{k}$"
+			if m=obj.match regex
+				r=true
+				break
+		r
 	
 	getTimeStamp:(obj,stack=[])->
 		if !@_cache[obj]? and @isFile(obj)

@@ -1,6 +1,6 @@
 .SUFFIXES:
 
-VERSION=0.3.1
+VERSION=0.4.0
 
 #=
 
@@ -44,7 +44,7 @@ $(DESTDIR):
 $(DESTDIR)/README.md:README.md $(TARGETS) $(SDK)
 	cat README.md|$(TOOLS)/partpipe >$@
 
-$(DESTDIR)/package.json:package.json $(SDK)|$(DESTDIR)
+$(DESTDIR)/package.json:package.json $(SDK) Makefile|$(DESTDIR)
 	cat $<|$(TOOLS)/partpipe VERKEY@version VERSION@$(VERSION) >$@
 
 $(DESTDIR)/%.js:%.coffee $(SDK) |$(DESTDIR)
@@ -52,7 +52,7 @@ ifndef NC
 	$(TOOLS)/coffee-jshint -o node $< 
 endif
 	head -n1 $<|grep '^#!'|sed 's/coffee/node/'  >$@ 
-	cat $<|$(TOOLS)/coffee -bcs >> $@
+	cat $<|$(TOOLS)/partpipe VERSION@$(VERSION) |$(TOOLS)/coffee -bcs >> $@
 	chmod +x $@
 
 $(DESTDIR)/%:%|$(DESTDIR)

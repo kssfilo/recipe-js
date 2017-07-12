@@ -5,21 +5,23 @@
 CoffeeScript=require 'coffee-script'
 Fs=require 'fs'
 
-$=new RecipeNodeJs()
 
 recipefile='Recipefile'
 
 if process.argv[2] in ['-h','-?']
-	$.O """
-	recipe [-F <Recipefile>] [target] [-<option> --<option> ..]
+	console.log """
+	recipe [-f|-F <Recipefile>] [target] [-<option> --<option> ..]
+	version @PARTPIPE@VERSION@PARTPIPE@
 
 	A gulp/GNU make like task launcher.Supports Dependencies/Inference Rules/Promise/Child Process/Cache/Deriving/CLI.
 
 	Options:
 
-	-F <Recipefile> specify Recipefile,default is "./Recipefile"
+	-f <Recipefile> specify Recipefile,default is "./Recipefile"
 	<target>:specify target object, default target is 'default'
 	<option>:options for Recipefile
+
+	-F <Recipefile> +trace output
 
 	Recipefile example:
 	-----
@@ -73,10 +75,11 @@ if process.argv[2] in ['-h','-?']
 	-----
 	Example:(file/inference rules)
 	-----
-	# $.F tells that specified target(extension/filename) is files.
-	$.F ['.md','.html']
+	# $.F tells that specified target(extension/filename) is files(% is wildcard,regex is ok).
+	$.F ['%.md','%.html']
 
-	$.R '.html','.md',$.P 'md2html'
+	# Inference rule(% is wildcard, '(.*)\.html','$1.md' in regex).
+	$.R '%.html','%.md',$.P 'md2html'
 
 	#>recipe test.html
 	# ->file test.md(# Hello) -> file test.html (<h1>Hello</h1>)
@@ -84,11 +87,15 @@ if process.argv[2] in ['-h','-?']
 	"""
 	process.exit 0
 
-if process.argv[2] is '-F'
+trace=false
+if process.argv[2] in ['-F','-f']
+	trace=process.argv[2] is '-F'
 	recipefile=process.argv[3]
 	process.argv.splice 0,4
 else
 	process.argv.splice 0,2
+
+$=new RecipeNodeJs({traceEnabled:trace})
 
 try
 	r=Fs.readFileSync recipefile
