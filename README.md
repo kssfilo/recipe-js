@@ -220,6 +220,8 @@ sudo npm install -g recipe-js
 
 ## Change Log
 
+- 0.4.1:added 'debugEnabled' option for constructor for debugging
+- 0.4.1:fixed cache expiration problem
 - 0.4.0:(breaking change) using wildcard %  and regex for inference rules/file io
 - 0.4.0:(breaking change) added -F option to cli for enable tracing (old -F option has been -f)
 - 0.3.1:allows syntax like a '$.F([".html",".md"])'

@@ -13,7 +13,10 @@ m.R 'test',['log','result','target'],(g)->
 	else
 		return "#{g.target} OK"
 
-ts=['extends','child','basic','shell','loop','args','schedule','abstruct'].map (x)->
+tests=['extends','child','basic','shell','loop','args','cache','abstruct']
+#tests.push('schedule')
+
+ts=tests.map (x)->
 	r=new RecipeNodeJs
 		extends:m
 		cacheFile:"#{x}.json"
@@ -26,6 +29,6 @@ ts=['extends','child','basic','shell','loop','args','schedule','abstruct'].map (
 			@S "coffee #{t}.coffee -f --flag2 -b 1 --longoption=2 other args "
 	r
 
-m.O 'This test needs 1min-2min. please wait'
+m.O 'This test needs 0min-2min. please wait'
 m.main ts,'test'
 

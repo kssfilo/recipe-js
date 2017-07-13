@@ -5,8 +5,8 @@ class RecipeJs
 	className:'RecipeJs'
 
 	O:(m)->console.log "#{m}"
-	T:(m)->console.log "#{@className}:T:#{m}" if @traceEnabled
-	C:(m)->console.log "#{@className}:C:#{m}" if @traceEnabled
+	T:(m)->console.log "#{@className}:T:#{m}" if @traceEnabled or @debugEnabled
+	C:(m)->console.log "#{@className}:C:#{m}" if @debugEnabled
 	E:(m)->console.error "Error:#{m}"
 
 	constructor:(g={})->
@@ -17,7 +17,7 @@ class RecipeJs
 		@_schedules={}
 		@_timerHandle=null
 		@_timeStamps={}
-		{@parent,@extends,@traceEnabled,@traceScheduler}=g
+		{@parent,@extends,@traceEnabled,@debugEnabled,@traceScheduler}=g
 		@set k,v for k,v of g.set if g.set?
 	
 	_normalizeTarget:(obj)->
@@ -33,7 +33,7 @@ class RecipeJs
 		obj=@_normalizeTarget obj
 
 		if args.length is 1 and typeof(args[0]) not in ['function','object']
-			@T "set:#{obj}=#{args[0]}"
+			@C "set:#{obj}=#{args[0]}"
 			@set obj,args[0]
 			return
 		
@@ -49,7 +49,7 @@ class RecipeJs
 		if typeof(args[0]) is 'function'
 			func=args.shift()
 
-		@T "task:#{obj},[#{prerequisites}]"
+		@C "task:#{obj},[#{prerequisites}]"
 		
 		@_tasks[obj]=
 			obj:obj
@@ -66,7 +66,7 @@ class RecipeJs
 		v
 
 	set:(obj,value)->
-		@T "set:#{obj},#{value},#{typeof value}"
+		@C "set:#{obj},#{value},#{typeof value}"
 		@_tasks[obj]=
 			obj:obj
 			value:value
@@ -74,6 +74,10 @@ class RecipeJs
 	get:(obj)->
 		return @_objs[obj] if @_objs[obj]?
 		return @_tasks[obj].value if @_tasks[obj]?.value?
+
+		if (c=@getCache obj) isnt null
+			return @_objs[obj]=c
+
 		target=@
 		while target.extends?
 			target=target.extends
@@ -84,6 +88,7 @@ class RecipeJs
 
 	remake:(obj)->
 		@_objs={}
+		@_timeStamps={}
 		@make obj
 
 	getPrerequisites:(task)->
@@ -96,21 +101,22 @@ class RecipeJs
 		prerequisites
 
 	getTimeStamp:(obj,stack=[])->
-		@T "Checking timestamp of '#{obj}'"
+		@C "Checking timestamp of '#{obj}'"
 
 		if t=@_timeStamps[obj]
-			@C "#{obj}:#{t}"
+			@C "timestamp:#{obj}:#{t}"
 			return t
 
 		updated=0
 		if c=@_cache[obj]
 			updated=c.updated ? 0
-			if c.expire and c.expire>new Date().getTime()
-				@C "#{obj} has cache,but expired"
+			now=new Date().getTime()
+			if c.expire and c.expire<now
+				@C "#{obj} has cache,but expired(left:#{(c.expire-now)/1000})"
 				updated=-1
 
-			@C "#{obj} has cache,timestamp is #{updated}"
-			return updated if c.expire is null and !c.isFile
+			@C "#{obj} has cache(timestamp:#{(updated-now)/1000}/left:#{(c.expire-now)/1000}})"
+			return updated if c.expire is null and !c.checkDepends
 
 		return updated if updated is -1
 
@@ -137,7 +143,13 @@ class RecipeJs
 		if @_cache[obj]?
 			ts=@getTimeStamp obj,stack
 			if ts isnt -1 and ts<=new Date().getTime()
+				@T "#{obj}(cached)"
 				return @_cache[obj].v
+			else
+				@T "#{obj}(needs update)"
+				delete @_cache[obj]
+				delete @_objs[obj] if @_objs[obj]?
+				@_tasks[obj].v=null if @_tasks[obj]?
 		null
 
 	searchTask:(obj)->
@@ -160,7 +172,7 @@ class RecipeJs
 						break
 
 				if t?
-					@T "making new task from abstruct task:.#{k}"
+					@C "making new task from abstruct task:.#{k}"
 
 					prerequisites=[]
 					makeRealId=(regex,target,prereq)->target.replace regex,prereq
@@ -176,14 +188,10 @@ class RecipeJs
 		t
 
 	make:(obj,stack=[])->
-		@T "make #{obj},stack:[#{stack}]"
-
-		if (c=@getCache obj,stack) isnt null
-			@C "cached:#{c}"
-			@_objs[obj]=c
+		@C "make #{obj},stack:[#{stack}]"
 
 		if h=@get(obj)?
-			@T "has #{obj}=#{h}"
+			@C "has #{obj}=#{h}"
 			return Promise.resolve h
 
 		t=@searchTask obj
@@ -239,7 +247,7 @@ class RecipeJs
 			else
 				rs=obj
 
-			@C "#{obj}<-[#{rs ? ''}]"
+			@T "#{obj}<-[#{JSON.stringify t.prerequisites}]"
 
 			if t?.func? and typeof(t.func) is 'function'
 				r=t.func.call @,rs
@@ -280,7 +288,7 @@ class RecipeJs
 
 		@_schedules[id]=schedule
 
-		@T "schedule: #{JSON.stringify schedule}"
+		@C "schedule: #{JSON.stringify schedule}"
 
 	enableSchedule:(id,isEnabled)->
 		@_schedules[id].enabled=isEnabled
@@ -311,7 +319,7 @@ class RecipeJs
 				timeOfDay=(now-offset)%(24*3600*1000)
 				lastTimeOfDay=(lastTick-offset)%(24*3600*1000)
 				lastTimeOfDay-=24*3600*1000 if lastTimeOfDay>timeOfDay
-				#@T "schedule: #{JSON.stringify @_schedules}"
+				#@C "schedule: #{JSON.stringify @_schedules}"
 				@C "scheduler:[#{ids}]" if @traceScheduler
 				for id,i of @_schedules
 					continue unless i.enabled
@@ -356,7 +364,7 @@ class RecipeNodeJs extends RecipeJs
 
 	saveCache:->
 		for k,v of @_saveFiles
-			@T "saveFile:#{k}"
+			@C "saveFile:#{k}"
 			require('fs').writeFileSync k,@get(k)
 			delete @_saveFiles[k]
 
@@ -365,20 +373,20 @@ class RecipeNodeJs extends RecipeJs
 				delete @_cache[k]
 
 		return unless @cacheFile?
-		@T "saveCache:#{JSON.stringify @_cache}"
+		@C "saveCache:#{JSON.stringify @_cache}"
 		require('fs').writeFileSync @cacheFile,JSON.stringify @_cache
 
 	S:(cmd,input=null)->
-		@T "S: #{cmd}, #{input}"
+		@C "S: #{cmd}, #{input}"
 		ca=cmd.match(/[^\s'"|]+|'[^']+'|"[^"]+"|\|/g)
 
 		if ca.indexOf('|')>=0
 			cmds=[]
 			while (i=ca.indexOf('|'))>=0
 				c1=ca.splice(0,i)
-				@T c1
+				@C c1
 				ca.shift()
-				@T ca
+				@C ca
 				#cmds.push c1.map((x)->"'#{x}'").join(' ')
 				cmds.push c1.join(' ')
 
@@ -476,7 +484,7 @@ class RecipeNodeJs extends RecipeJs
 					v:require('fs').readFileSync(obj)?.toString()
 					updated:new Date(stat.mtime).getTime()
 					expire:null
-					isFile:true
+					checkDepends:true
 			catch
 				@C "'#{obj}' does't exist, try to make"
 				return -1
