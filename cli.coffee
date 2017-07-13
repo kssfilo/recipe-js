@@ -22,6 +22,7 @@ if process.argv[2] in ['-h','-?']
 	<option>:options for Recipefile
 
 	-F <Recipefile> +trace output
+	-D <Recipefile> +debug output
 
 	Recipefile example:
 	-----
@@ -84,18 +85,30 @@ if process.argv[2] in ['-h','-?']
 	#>recipe test.html
 	# ->file test.md(# Hello) -> file test.html (<h1>Hello</h1>)
 	# file system's timestamp is used for update decision
+	-----
+	Example:(file/inference rules2)
+	-----
+	$.F ['%.c','%.o']
+
+	$.R '%.o',['%.c'],(g,t)->
+		$.S "gcc -c \#{t.deps[0]} -o \#{t.target}"
+		.then $.saved(t)  #indicates target has already saved
+
+	#>recipe test.o
 	"""
 	process.exit 0
 
 trace=false
-if process.argv[2] in ['-F','-f']
+debug=false
+if process.argv[2] in ['-F','-f','-D']
 	trace=process.argv[2] is '-F'
+	debug=process.argv[2] is '-D'
 	recipefile=process.argv[3]
 	process.argv.splice 0,4
 else
 	process.argv.splice 0,2
 
-$=new RecipeNodeJs({traceEnabled:trace})
+$=new RecipeNodeJs({traceEnabled:trace,debugEnabled:debug})
 
 try
 	r=Fs.readFileSync recipefile

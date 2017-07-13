@@ -177,12 +177,10 @@ class RecipeJs
 					prerequisites=[]
 					makeRealId=(regex,target,prereq)->target.replace regex,prereq
 
-
 					if typeof(t.prerequisites) is 'string'
 						prerequisites=makeRealId regex,obj,t.prerequisites
 					else if t.prerequisites instanceof Array
-						prerequisites=makeRealId(regex,obj,t.prerequisites) for i in t.prerequisites
-
+						prerequisites=(makeRealId(regex,obj,i) for i in t.prerequisites)
 					@R obj,prerequisites,t.func
 					return @searchTask obj
 		t
@@ -235,8 +233,12 @@ class RecipeJs
 				return
 
 			rs=null
+			recipeInfo=
+				target:obj
+				deps:t.prerequisites
 			if typeof(t.prerequisites) is 'string'
 				rs=@get(t.prerequisites)
+				recipeInfo['dep']=t.prerequisites
 			else if t.prerequisites instanceof Array and t.prerequisites.length>0
 				#rs=(@get(i) for i in t.prerequisites)
 				rs=[]
@@ -250,7 +252,7 @@ class RecipeJs
 			@T "#{obj}<-[#{JSON.stringify t.prerequisites}]"
 
 			if t?.func? and typeof(t.func) is 'function'
-				r=t.func.call @,rs
+				r=t.func.call @,rs,recipeInfo
 			else
 				r=rs
 			unless r? and typeof(r.then) is 'function'
@@ -504,6 +506,17 @@ class RecipeNodeJs extends RecipeJs
 				null
 		else
 			super obj,stack
+
+	saved:(t)->
+		return (g)=>
+			delete @_saveFiles[t.target]
+			require('fs').readFileSync t.target
+
+	save:(t)->
+		return (g)=>
+			require('fs').writeFileSync t.target,g
+			delete @_saveFiles[t.target]
+			g
 
 	main:(objOrArray,arrayTarget=null)->
 		try

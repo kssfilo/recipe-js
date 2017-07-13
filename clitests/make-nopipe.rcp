@@ -1,0 +1,10 @@
+#!/usr/bin/env recipe -f
+
+$.F ['%.md','%.html']
+
+$.R '%.html',['%.md'],(g,t)->
+	$.S "cp #{t.deps[0]} #{t.target}"
+	.then $.saved(t)
+
+$.R 'default',['test.html']
+
