@@ -4,7 +4,6 @@ recipe-js
 A gulp/GNU make like task launcher.Supports Dependencies/Inference Rules/Promise/Child Process/Cache/Deriving/CLI.
 
 ## Examples
-
 ### Core module (RecipeJs class)
 
 ```

@@ -1,10 +1,11 @@
 #!/usr/bin/env recipe -f
 
-$.F ['%.md','%.html']
+$.F ['%.txt','%.html','%.md']
 
 $.R '%.html',['%.md'],(g,t)->
 	$.S "cp #{t.deps[0]} #{t.target}"
 	.then $.saved(t)
 
-$.R 'default',['test.html']
+$.R '%.md','%.txt',$.P 'cat'
 
+$.R 'default',['test.html']

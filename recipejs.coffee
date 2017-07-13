@@ -365,11 +365,6 @@ class RecipeNodeJs extends RecipeJs
 			@_cache={}
 
 	saveCache:->
-		for k,v of @_saveFiles
-			@C "saveFile:#{k}"
-			require('fs').writeFileSync k,@get(k)
-			delete @_saveFiles[k]
-
 		for k,v of @_cache
 			if v.isFile
 				delete @_cache[k]
@@ -516,6 +511,15 @@ class RecipeNodeJs extends RecipeJs
 		return (g)=>
 			require('fs').writeFileSync t.target,g
 			delete @_saveFiles[t.target]
+			g
+
+	make:(obj,stack=[])->
+		super obj,stack
+		.then (g)=>
+			if @_saveFiles[obj]
+				@C "saveFile:#{obj}"
+				require('fs').writeFileSync obj,g
+				delete @_saveFiles[obj]
 			g
 
 	main:(objOrArray,arrayTarget=null)->
