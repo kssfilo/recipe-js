@@ -220,6 +220,7 @@ sudo npm install -g recipe-js
 
 ## Change Log
 
+- 0.4.2:showing expiration of cache in trace output
 - 0.4.1:added 'debugEnabled' option for constructor for debugging
 - 0.4.1:fixed cache expiration problem
 - 0.4.0:(breaking change) using wildcard %  and regex for inference rules/file io

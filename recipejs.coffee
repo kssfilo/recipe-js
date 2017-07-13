@@ -140,10 +140,10 @@ class RecipeJs
 		return @_timeStamps[obj]=updated
 
 	getCache:(obj,stack=[])->
-		if @_cache[obj]?
+		if c=@_cache[obj]
 			ts=@getTimeStamp obj,stack
-			if ts isnt -1 and ts<=new Date().getTime()
-				@T "#{obj}(cached)"
+			if ts isnt -1
+				@T "#{obj}(cached#{if c.expire? then ":"+(c.expire-new Date().getTime())/1000 else ''})"
 				return @_cache[obj].v
 			else
 				@T "#{obj}(needs update)"
