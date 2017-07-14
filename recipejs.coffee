@@ -16,7 +16,6 @@ class RecipeJs
 		@_cache={}
 		@_schedules={}
 		@_timerHandle=null
-		@_timeStamps={}
 		{@parent,@extends,@traceEnabled,@debugEnabled,@traceScheduler}=g
 		@set k,v for k,v of g.set if g.set?
 	
@@ -88,7 +87,6 @@ class RecipeJs
 
 	remake:(obj)->
 		@_objs={}
-		@_timeStamps={}
 		@make obj
 
 	getPrerequisites:(task)->
@@ -103,41 +101,33 @@ class RecipeJs
 	getTimeStamp:(obj,stack=[])->
 		@C "Checking timestamp of '#{obj}'"
 
-		if t=@_timeStamps[obj]
-			@C "timestamp:#{obj}:#{t}"
-			return t
+		c=@_cache[obj]
+		return -1 if !c or c.updated is -1
 
-		updated=0
-		if c=@_cache[obj]
-			updated=c.updated ? 0
-			now=new Date().getTime()
-			if c.expire and c.expire<now
-				@C "#{obj} has cache,but expired(left:#{(c.expire-now)/1000})"
-				updated=-1
+		c.updated?=0
+		now=new Date().getTime()
+		if c.expire and c.expire<now
+			@C "#{obj} has cache,but expired(left:#{(c.expire-now)/1000})"
+			c.updated=-1
+			return c.updated
 
-			@C "#{obj} has cache(timestamp:#{(updated-now)/1000}/left:#{(c.expire-now)/1000}})"
-			return updated if c.expire is null and !c.checkDepends
+		@C "#{obj} has cache(timestamp:#{(c.updated-now)/1000}#{if c.expire isnt null then "/left:"+((c.expire-now)/1000)})"
 
-		return updated if updated is -1
+		if c.checkDepends
+			if t=@searchTask obj
+				@C "Checking prerequisites of '#{obj}'"
+				prs=@getPrerequisites t
+				for i in prs
+					pt=@getTimeStamp i
+					if pt is -1
+						c.updated=-1
+						break
+					if pt>c.updated
+						c.updated=-1
+						break
 
-		###
-		if @get(obj)?
-			return @_timeStamps[obj]=0
-		###
-
-		if t=@searchTask obj
-			@C "Checking prerequisites of '#{obj}'"
-			prs=@getPrerequisites t
-			for i in prs
-				pt=@getTimeStamp i
-				if pt is -1
-					updated=-1
-					break
-				if pt>updated
-					updated=-1
-
-		@C "updated '#{obj}' s timestamp is #{updated}"
-		return @_timeStamps[obj]=updated
+		@C "updated '#{obj}' s timestamp is #{c.updated}"
+		return c.updated
 
 	getCache:(obj,stack=[])->
 		if c=@_cache[obj]
@@ -490,19 +480,26 @@ class RecipeNodeJs extends RecipeJs
 
 	getCache:(obj,stack=[])->
 		if @isFile(obj)
-			if !@_cache[obj]?
-				ts=@getTimeStamp obj,stack
-				@C "#{obj},#{ts}"
 
-				if ts is -1
-					@C "file '#{obj}' needs remake"
-					@_saveFiles[obj]=ts
-					return null
+			ts=@getTimeStamp obj,stack
+			@C "timestamp:#{obj},#{ts}"
+
+			if ts is -1
+				@C "file '#{obj}' needs remake"
+				@_saveFiles[obj]=ts
+				return null
+
 			return @load obj
 		else
 			super obj,stack
 	
 	load:(obj)->
+		@C "file load #{obj}"
+
+		c=@_cache[obj]
+
+		return null if !c or c.updated is -1
+
 		if v=@_cache[obj]?.v
 			return v
 

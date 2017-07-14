@@ -9,7 +9,7 @@
 }
 
 @test "make" {
-	[ "$(echo 'RecipeJs' >test.txt;rm -f test.html;../dist/cli.js -f make.rcp;cat test.html;rm test.html;rm test.md;rm test.txt)" = "<h1>RecipeJs</h1>" ]
+	[ "$(echo 'RecipeJs' >test.txt;rm -f test.html;../dist/cli.js -f make.rcp;sleep 1;echo 'RecipeJs2'>test.txt;../dist/cli.js -f make.rcp;cat test.html;rm test.html;rm test.md;rm test.txt)" = "<h1>RecipeJs2</h1>" ]
 }
 
 @test "make-nopipe" {
