@@ -219,6 +219,7 @@ sudo npm install -g recipe-js
 
 ## Change Log
 
+- 0.5.3:added special target "TRACE"/"DEBUG" for Recipefile
 - 0.5.0:added saved()/-D option
 - 0.4.2:showing expiration of cache in trace output
 - 0.4.1:added 'debugEnabled' option for constructor for debugging

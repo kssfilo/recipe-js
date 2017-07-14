@@ -111,7 +111,7 @@ class RecipeJs
 			c.updated=-1
 			return c.updated
 
-		@C "#{obj} has cache(timestamp:#{(c.updated-now)/1000}#{if c.expire isnt null then "/left:"+((c.expire-now)/1000)})"
+		@C "#{obj} has cache(timestamp:#{(c.updated-now)/1000}#{if c.expire isnt null then "/left:"+((c.expire-now)/1000) else ''})"
 
 		if c.checkDepends
 			if t=@searchTask obj

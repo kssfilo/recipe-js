@@ -71,6 +71,9 @@ if process.argv[2] in ['-h','-?']
 		a:'flagA'
 		b:'argB:' #':' indicates having argument
 
+	#special target 'TRACE'/'DEBUG' for debugging
+	$.set 'TRACE',true
+
 	#command line: recipe -a -b Hello --flagC --argD=World
 	#->true Hello true World
 	-----
@@ -116,6 +119,11 @@ try
 
 	options=$.get 'OPTIONS'
 	remains=$.setByArgv process.argv,options
+
+	trace=$.get "TRACE"
+	debug=$.get "DEBUG"
+	$.traceEnabled=trace if trace?
+	$.debugEnabled=debug if debug?
 
 	target=remains[0] ? 'default'
 	$.main target
