@@ -1,0 +1,6 @@
+#!/usr/bin/env recipe -f
+
+$.R 'default',->
+	$.X 'echo Recipe'
+	.then $.PX 'echo JS'
+

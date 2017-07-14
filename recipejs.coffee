@@ -237,7 +237,7 @@ class RecipeJs
 					rs.push v
 					rs[i]=v
 			else
-				rs=obj
+				rs=null
 
 			@T "#{obj}<-[#{JSON.stringify t.prerequisites}]"
 
@@ -363,8 +363,21 @@ class RecipeNodeJs extends RecipeJs
 		@C "saveCache:#{JSON.stringify @_cache}"
 		require('fs').writeFileSync @cacheFile,JSON.stringify @_cache
 
+	X:(cmd)->
+		new Promise (ok,ng)=>
+			@C "X(shell): #{cmd}"
+			require('child_process').exec cmd,(e,so,se)=>
+				if e
+					ng e
+				process.stdout.write so
+				process.stderr.write se
+				#console.error se
+				ok so
+	PX:(cmd)->
+		=>@X cmd
+
 	S:(cmd,input=null)->
-		@C "S: #{cmd}, #{input}"
+		@C "S(spawn): #{cmd}, #{input}"
 		ca=cmd.match(/[^\s'"|]+|'[^']+'|"[^"]+"|\|/g)
 
 		if ca.indexOf('|')>=0
@@ -414,6 +427,9 @@ class RecipeNodeJs extends RecipeJs
 					ok out
 
 	P:(cmd)->
+		(x)=>@S cmd,x
+
+	PS:(cmd)->
 		(x)=>@S cmd,x
 
 	F:(extentionOrFilenameOrArray)->
@@ -515,17 +531,11 @@ class RecipeNodeJs extends RecipeJs
 			@C "failed to load '#{obj}', try to make"
 			return null
 
-	saved:(t)->
+	saved:(obj)->
 		return (g)=>
-			delete @_saveFiles[t.target]
-			delete @_cache[t.target]
-			require('fs').readFileSync t.target
-
-	save:(t)->
-		return (g)=>
-			require('fs').writeFileSync t.target,g
-			delete @_saveFiles[t.target]
-			g
+			delete @_saveFiles[obj]
+			delete @_cache[obj]
+			require('fs').readFileSync obj
 
 	make:(obj,stack=[])->
 		super obj,stack

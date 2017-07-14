@@ -15,3 +15,7 @@
 @test "make-nopipe" {
 	[ "$(echo 'RecipeJs' >test.txt;rm -f test.md;rm -f test.html;../dist/cli.js -f make-nopipe.rcp;cat test.html;rm test.html;rm test.md;rm test.txt)" = "RecipeJs" ]
 }
+
+@test "shell" {
+	[ $(../dist/cli.js -f shell.rcp|tr -d "\n") = "RecipeJS" ]
+}

@@ -94,8 +94,8 @@ if process.argv[2] in ['-h','-?']
 	$.F ['%.c','%.o']
 
 	$.R '%.o',['%.c'],(g,t)->
-		$.S "gcc -c \#{t.deps[0]} -o \#{t.target}"
-		.then $.saved(t)  #indicates target has already saved
+		$.X "gcc -c \#{t.deps[0]} -o \#{t.target}"
+		.then $.saved t.target  #indicates target has already saved
 
 	#>recipe test.o
 	"""

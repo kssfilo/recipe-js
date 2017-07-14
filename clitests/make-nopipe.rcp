@@ -4,7 +4,7 @@ $.F ['%.txt','%.html','%.md']
 
 $.R '%.html',['%.md'],(g,t)->
 	$.S "cp #{t.deps[0]} #{t.target}"
-	.then $.saved(t)
+	.then $.saved(t.target)
 
 $.R '%.md','%.txt',$.P 'cat'
 
