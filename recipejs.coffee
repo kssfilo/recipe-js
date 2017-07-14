@@ -478,7 +478,7 @@ class RecipeNodeJs extends RecipeJs
 			try
 				stat=require('fs').statSync obj
 				@_cache[obj]=
-					v:require('fs').readFileSync(obj)?.toString()
+					v:null
 					updated:new Date(stat.mtime).getTime()
 					expire:null
 					checkDepends:true
@@ -489,22 +489,39 @@ class RecipeNodeJs extends RecipeJs
 		super obj,stack
 
 	getCache:(obj,stack=[])->
-		if !@_cache[obj]? and @isFile(obj)
-			ts=@getTimeStamp obj,stack
-			@C "#{obj},#{ts}"
+		if @isFile(obj)
+			if !@_cache[obj]?
+				ts=@getTimeStamp obj,stack
+				@C "#{obj},#{ts}"
 
-			if ts isnt -1 and ts<=new Date().getTime()
-				return @_cache[obj].v
-			else
-				@C "mark to save :#{obj}"
-				@_saveFiles[obj]=true
-				null
+				if ts is -1
+					@C "file '#{obj}' needs remake"
+					@_saveFiles[obj]=ts
+					return null
+			return @load obj
 		else
 			super obj,stack
+	
+	load:(obj)->
+		if v=@_cache[obj]?.v
+			return v
+
+		try
+			stat=require('fs').statSync obj
+			@_cache[obj]=
+				v:require('fs').readFileSync(obj)?.toString()
+				updated:new Date(stat.mtime).getTime()
+				expire:null
+				checkDepends:true
+			return @_cache[obj].v
+		catch
+			@C "failed to load '#{obj}', try to make"
+			return null
 
 	saved:(t)->
 		return (g)=>
 			delete @_saveFiles[t.target]
+			delete @_cache[t.target]
 			require('fs').readFileSync t.target
 
 	save:(t)->
@@ -520,6 +537,7 @@ class RecipeNodeJs extends RecipeJs
 				@C "saveFile:#{obj}"
 				require('fs').writeFileSync obj,g
 				delete @_saveFiles[obj]
+				delete @_cache[obj]
 			g
 
 	main:(objOrArray,arrayTarget=null)->
