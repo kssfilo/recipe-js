@@ -91,13 +91,23 @@ if process.argv[2] in ['-h','-?']
 	-----
 	Example:(file/inference rules2)
 	-----
-	$.F ['%.c','%.o']
+	$.F ['a','%.o','%.c']
 
-	$.R '%.o',['%.c'],(g,t)->
-		$.X "gcc -c \#{t.deps[0]} -o \#{t.target}"
-		.then $.saved t.target  #indicates target has already saved
+	$.R '%.o','%.c',(g,t)->
+		$.S "gcc -c -o \#{t.target} \#{t.dep}"
+		.then $.saved t.target  #$.saved indicats target has already been saved
 
-	#>recipe test.o
+	$.R 'a',['b.o','a.o'],(g,t)->
+		$.S "gcc -o \#{t.target} \#{t.deps.join ' '}"
+		.then $.saved 'a'
+
+	$.R 'clean',$.PX 'rm -f *.o'
+	$.R 'cleanall','clean',$.PX 'rm -f a'
+
+	$.R 'default','a'
+	$.set 'TRACE',true
+	#>recipe
+	#>recipe cleanall
 	"""
 	process.exit 0
 
