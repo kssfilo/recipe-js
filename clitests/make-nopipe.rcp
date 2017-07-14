@@ -8,4 +8,4 @@ $.R '%.html',['%.md'],(g,t)->
 
 $.R '%.md','%.txt',$.P 'cat'
 
-$.R 'default',['test.html']
+$.R 'default','test.html'

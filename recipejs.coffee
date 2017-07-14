@@ -32,7 +32,7 @@ class RecipeJs
 	R:(obj,args...)->
 		obj=@_normalizeTarget obj
 
-		if args.length is 1 and typeof(args[0]) not in ['function','object']
+		if args.length is 1 and typeof(args[0]) not in ['function','object','string']
 			@C "set:#{obj}=#{args[0]}"
 			@set obj,args[0]
 			return
