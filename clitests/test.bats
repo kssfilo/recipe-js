@@ -19,3 +19,7 @@
 @test "shell" {
 	[ $(../dist/cli.js -f shell.rcp|tr -d "\n") = "RecipeJS" ]
 }
+
+@test "exec" {
+	[ $(../dist/cli.js -f exec.rcp|tr -d "\n") = "RecipeJS" ]
+}

@@ -22,7 +22,7 @@ class RecipeJs
 	_normalizeTarget:(obj)->
 		if obj.indexOf('%')>=0
 			obj=obj.replace /\./g,'\.'
-			obj=obj.replace /%/g,'(.+)'
+			obj=obj.replace /%/g,'([^.]+)'
 		obj
 	_normalizePrerequisite:(obj)->
 		count=1

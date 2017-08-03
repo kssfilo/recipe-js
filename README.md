@@ -220,6 +220,7 @@ sudo npm install -g recipe-js
 
 ## Change Log
 
+- 0.5.5:changed substitution '%'->'.+' to '%'->'[^.]+'.
 - 0.5.4:added $.X(cmd) for shell execution(supports redirection but cant inject into stdin), $.PX(cmd) is shorthand of ()=>$.X(cmd)
 - 0.5.3:added special target "TRACE"/"DEBUG" for Recipefile
 - 0.5.0:added saved()/-D option
