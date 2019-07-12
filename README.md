@@ -3,8 +3,8 @@ recipe-js
 
 A gulp/GNU make like task launcher with CLI tool.Supports Dependencies/Cache/Inference Rules/Promise/Child Process/Deriving/Scheduler
 
-- [npmjs(document)][https://www.npmjs.com/package/recipe-js]
-- [GitHub(bug report)][https://github.com/kssfilo/recipe-js]
+- [npmjs(document)](https://www.npmjs.com/package/recipe-js)
+- [GitHub(bug report)](https://github.com/kssfilo/recipe-js)
 - [Home Page](https://kanasys.com/gtech/673)
 
 ## Examples

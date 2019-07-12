@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kssfilo/@PARPIPE@NAME@PARTPIPE@.git"
+    "url": "https://github.com/kssfilo/@PARTPIPE@NAME@PARTPIPE@.git"
   },
   "engines": {
     "node": ">=@PARTPIPE@NODEVER@PARTPIPE@"
