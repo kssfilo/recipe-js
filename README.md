@@ -213,7 +213,7 @@ sudo npm install -g recipe-js
 ```
 @PARTPIPE@|dist/cli.js -h
 
-!!SEE NPM README!!
+see https://www.npmjs.com/package/recipe-js
 
 @PARTPIPE@
 ```

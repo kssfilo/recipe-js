@@ -1,8 +1,8 @@
 #!/usr/bin/env coffee
 ###jshint evil:true###
 
-{RecipeNodeJs}=require './recipejs'
-CoffeeScript=require 'coffee-script'
+{RecipeNodeJs}=require './recipe-js'
+CoffeeScript=require 'coffeescript'
 Fs=require 'fs'
 
 
@@ -10,10 +10,10 @@ recipefile='Recipefile'
 
 if process.argv[2] in ['-h','-?']
 	console.log """
-	recipe [-f|-F <Recipefile>] [target] [-<option> --<option> ..]
+	@PARTPIPE@BINNAME@PARTPIPE@ [-f|-F <Recipefile>] [target] [-<option> --<option> ..]
 	version @PARTPIPE@VERSION@PARTPIPE@
 
-	A gulp/GNU make like task launcher.Supports Dependencies/Inference Rules/Promise/Child Process/Cache/Deriving/CLI.
+	@PARTPIPE@DESCRIPTION@PARTPIPE@
 
 	Options:
 
@@ -23,6 +23,8 @@ if process.argv[2] in ['-h','-?']
 
 	-F <Recipefile> +trace output
 	-D <Recipefile> +debug output
+
+	(for shebang(#!/usr/bin/env recipe) execution, you can omit -f if there are no Recieptfile in current dir and no other target in command line)
 
 	Recipefile example:
 	-----
@@ -113,13 +115,31 @@ if process.argv[2] in ['-h','-?']
 
 trace=false
 debug=false
-if process.argv[2] in ['-F','-f','-D']
+
+if process.argv.length >= 4 and process.argv[2] in ['-F','-f','-D']
 	trace=process.argv[2] is '-F'
 	debug=process.argv[2] is '-D'
 	recipefile=process.argv[3]
 	process.argv.splice 0,4
 else
 	process.argv.splice 0,2
+
+try
+	Fs.statSync(recipefile)
+catch e
+	if process.argv.length == 1 and recipefile == 'Recipefile'
+		try
+			#special case,try 1st arg as Receiptfile for shebang (#!/usr/bin/env receipt) execution
+			Fs.statSync(process.argv[0])
+			recipefile=process.argv[0]
+			process.argv.splice 0,1
+		catch e2
+			$.E "couldn't find '#{recipefile}'"
+			process.exit 1
+	else
+		$.E "couldn't find '#{recipefile}'"
+		process.exit 1
+
 
 $=new RecipeNodeJs({traceEnabled:trace,debugEnabled:debug})
 
@@ -138,4 +158,5 @@ try
 	target=remains[0] ? 'default'
 	$.main target
 catch e
-	$.E e
+	$.E e.toString()
+	#$.E e

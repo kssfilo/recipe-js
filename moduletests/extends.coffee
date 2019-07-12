@@ -1,6 +1,6 @@
 #!/usr/bin/env coffee
 
-{RecipeNodeJs}=require '../dist/recipejs'
+{RecipeNodeJs}=require '../dist/recipe-js'
 
 trace=false
 

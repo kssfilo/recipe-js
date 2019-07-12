@@ -1,25 +1,32 @@
 {
-  "name": "recipe-js",
-  "description": "A gulp/GNU make like task launcher.Supports Dependencies/Inference Rules/Promise/Child Process/Cache/Deriving/CLI.",
-  "main": "recipejs.js",
+  "@PARTPIPE@_@PARTPIPE@name": "@PARTPIPE@NAME@PARTPIPE@",
+  "description": "@PARTPIPE@DESCRIPTION@PARTPIPE@",
+  "main": "@PARTPIPE@NAME@PARTPIPE@.js",
+  "license": "MIT",
   "bin": {
-    "recipe": "./cli.js"
+    "@PARTPIPE@BINNAME@PARTPIPE@": "./cli.js"
   },
-  "@PARTPIPE@VERKEY@PARTPIPE@": "@PARTPIPE@VERSION@PARTPIPE@",
+  "@PARTPIPE@_@PARTPIPE@version": "@PARTPIPE@VERSION@PARTPIPE@",
   "dependencies": {
+    "coffeescript": "2.4.1"
   },
   "devDependencies": {
-    "partpipe": "^0.4.0",
-    "coffee-jshint": "^0.2.6",
-    "coffee-script": "^1.12.4"
+    "coffee-jshint": "1.1.1",
+    "partpipe": "0.4.0"
   },
   "tags": [],
+  "keywords": [
+    "@PARTPIPE@KEYWORDS@PARTPIPE@"
+  ],
   "author": {
-    "name": "kssfilo"
+    "name": "@kssfilo",
+    "url": "https://kanasys.com/gtech/"
   },
-  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "http://github.com/kssfilo/recipe-js.git"
+    "url": "https://github.com/kssfilo/@PARPIPE@NAME@PARTPIPE@.git"
+  },
+  "engines": {
+    "node": ">=@PARTPIPE@NODEVER@PARTPIPE@"
   }
 }

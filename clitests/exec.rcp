@@ -1,8 +1,9 @@
-#!/usr/bin/env recipe -f
+#!/usr/bin/env recipe
 
-$.F '%.rcp'
+$.F '%.sh'
 
-$.R '%','%.rcp',(g,t)->$.X "./#{t.dep}"
+$.R '%','%.sh',(g,t)->$.X "./#{t.dep}"
 
-$.R 'default',['shell']
+$.R 'default',['exec']
+
 

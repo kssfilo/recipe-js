@@ -1,4 +1,4 @@
-#!/usr/bin/env recipe 
+#!/usr/bin/env ../../dist/cli.js
 
 $.R 'default',->
 	$.X 'echo Recipe'

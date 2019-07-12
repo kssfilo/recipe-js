@@ -1,4 +1,4 @@
-#!/usr/bin/env recipe -f
+#!/usr/bin/env recipe
 
 $.F '(.+)\.txt'
 $.F ['%.md','(.+)\.html']
@@ -9,3 +9,4 @@ $.R '%.html','%.md',$.P 'sed -E "s/^# (.*)/<h1>\\1<\\/h1>/"'
 $.R 'default',['test.html']
 
 $.main 'default'
+

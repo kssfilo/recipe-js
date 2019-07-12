@@ -1,4 +1,4 @@
-#!/usr/bin/env recipe -f
+#!/usr/bin/env recipe
 
 $.F ['%.txt','%.html','%.md']
 
@@ -9,3 +9,4 @@ $.R '%.html',['%.md'],(g,t)->
 $.R '%.md','%.txt',$.P 'cat'
 
 $.R 'default','test.html'
+

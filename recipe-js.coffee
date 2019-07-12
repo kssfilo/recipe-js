@@ -16,7 +16,9 @@ class RecipeJs
 		@_cache={}
 		@_schedules={}
 		@_timerHandle=null
-		{@parent,@extends,@traceEnabled,@debugEnabled,@traceScheduler}=g
+		{@parent,@traceEnabled,@debugEnabled,@traceScheduler}=g
+		@["extends"]=g.extends   #to avoid js-lint error
+
 		@set k,v for k,v of g.set if g.set?
 	
 	_normalizeTarget:(obj)->
@@ -106,7 +108,8 @@ class RecipeJs
 
 		c.updated?=0
 		now=new Date().getTime()
-		if c.expire and c.expire<now
+
+		if c.expire and c.expire < now
 			@C "#{obj} has cache,but expired(left:#{(c.expire-now)/1000})"
 			c.updated=-1
 			return c.updated
@@ -448,7 +451,7 @@ class RecipeNodeJs extends RecipeJs
 					if actual=dict?[c[1]]
 						hasValue=actual.match /:$/
 						actual=actual.replace /:$/,''
-						if hasValue? and j<args.length
+						if hasValue? and j < args.length
 							value=args[j++]
 						else if !hasValue?
 							value=true

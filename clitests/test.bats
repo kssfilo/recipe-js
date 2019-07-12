@@ -23,3 +23,9 @@
 @test "exec" {
 	[ $(../dist/cli.js -f exec.rcp|tr -d "\n") = "RecipeJS" ]
 }
+
+@test "shebang" {
+	cd shebang
+	[ $(./shebang.rcp|tr -d "\n") = "RecipeJS" ]
+	cd -
+}

@@ -1,11 +1,11 @@
 #!/usr/bin/env coffee
 
-{RecipeNodeJs}=require '../dist/recipejs'
+{RecipeNodeJs}=require '../dist/recipe-js'
 
 m=new RecipeNodeJs()
 
 m.R 'log','result',(x)->@cache 'log',x
-m.R 'result','target',(t)->m.S "coffee #{t}.coffee"
+m.R 'result','target',(t)->m.S "../node_modules/.bin/coffee #{t}.coffee"
 
 m.R 'test',['log','result','target'],(g)->
 	if g.log isnt g.result
@@ -26,7 +26,7 @@ ts=tests.map (x)->
 
 	if x is 'args'
 		r.R 'result','target',(t)->
-			@S "coffee #{t}.coffee -f --flag2 -b 1 --longoption=2 other args "
+			@S "../node_modules/.bin/coffee #{t}.coffee -f --flag2 -b 1 --longoption=2 other args "
 	r
 
 m.O 'This test needs 0min-2min. please wait'

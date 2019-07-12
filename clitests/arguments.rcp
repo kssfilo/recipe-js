@@ -1,4 +1,5 @@
-#!/usr/bin/env recipe -f
+#!/usr/bin/env recipe
+
 
 $.R 'default',['flagA','argB','flagC','argD'],(g)->
 	new Promise (rs,rj)=>
@@ -17,3 +18,4 @@ $.set 'OPTIONS',
 
 #command line: recipe -a -b Hello --flagC --argD=World
 #->true Hello true World
+
