@@ -3,13 +3,13 @@
 NAME=recipe-js
 BINNAME=recipe
 VERSION=1.0.0
-DESCRIPTION=A gulp/GNU make like task launcher.Supports Dependencies/Inference Rules/Promise/Child Process/Cache/Deriving/CLI.
-KEYWORDS=make build tool gulp task launcher Promise child_process cache CLI command-line stdin async async.js
+DESCRIPTION=A gulp/GNU make like task launcher with CLI tool.Supports Dependencies/Cache/Inference Rules/Promise/Child Process/Deriving/Scheduler.
+KEYWORDS=make build tool gulp task launcher Promise child_process exec spawn cache CLI command-line stdin async scheduler
 NODEVER=8
-LICENCE=MIT
+LICENSE=MIT
 
 PKGKEYWORDS=$(shell echo $$(echo $(KEYWORDS)|perl -ape '$$_=join("\",\"",@F)'))
-PARTPIPETAGS="_@" "VERSION@$(VERSION)" "NAME@$(NAME)" "DESCRIPTION@$(DESCRIPTION)" 'KEYWORDS@$(PKGKEYWORDS)' "NODEVER@$(NODEVER)" "LICENSE@$(LICENSE)" 
+PARTPIPETAGS="_@" "VERSION@$(VERSION)" "NAME@$(NAME)" "BINNAME@$(BINNAME)" "DESCRIPTION@$(DESCRIPTION)" 'KEYWORDS@$(PKGKEYWORDS)' "NODEVER@$(NODEVER)" "LICENSE@$(LICENSE)" 
 #=
 
 #=
@@ -34,6 +34,8 @@ default:build
 
 build:$(TARGETS)
 
+docs:$(DOCS)
+
 test:test.passed
 
 clitest:$(ALL) clitests/test.bats
@@ -45,7 +47,7 @@ moduletest:$(ALL)
 pack:$(ALL) test.passed|$(DESTDIR)
 
 clean:
-	rm -r $(DESTDIR) node_modules 2>&1 ;true
+	rm -r $(DESTDIR) test.passed node_modules 2>&1 ;true
 
 help:
 	@echo "Targets:$(COMMANDS)"

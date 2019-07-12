@@ -3,7 +3,12 @@ recipe-js
 
 A gulp/GNU make like task launcher with CLI tool.Supports Dependencies/Cache/Inference Rules/Promise/Child Process/Deriving/Scheduler
 
+- [npmjs(document)][https://www.npmjs.com/package/recipe-js]
+- [GitHub(bug report)][https://github.com/kssfilo/recipe-js]
+- [Home Page](https://kanasys.com/gtech/673)
+
 ## Examples
+
 ### Core module (RecipeJs class)
 
 ```
@@ -31,19 +36,19 @@ $.make('default')
 });
 
 //-> Hello World
-//$.R(targetName,[prerequisite,prerequisite...],callback) # decrares "recipe" of "targetName"
-//$.set(target,value) # decrares target is value
+//$.R(targetName,[prerequisite,prerequisite...],callback) # declares "recipe" of "targetName"
+//$.set(target,value) # declares target is value
 //$.make(targetName) # make target
 //$.remake(takgetName) # clear cache then re-make target
 ```
 
-recipe-js is GNU make like task launcher. unlike normal program sequence, recipe-js 'resolves' prerequisites of target then gathers these task's results automatically.
+recipe-js is GNU make like task launcher. unlike normal program sequence, recipe-js 'resolves' prerequisites of the target then gathers these task's results automatically.
 
-you can 'decrare' task by $.R function or $.set functtion like above example. $.R are function tasks which getting their prerequisites vir argument('g' above) then return result as 'targetName'
+you can 'declare' task by $.R function or $.set functtion like above example. $.R are function tasks which getting their prerequisites vir argument('g' above) then return result as 'targetName'
 
-'g' argument is just an object which have attributes. the name of attributes are same as prerequisite name.
+'g' argument is just an object which has attributes. the name of attributes is same as the prerequisite name.
 
-.set() is just assigning a value to target name, unlike .R, that has no function task.
+.set() is just assigning a value to the target name, unlike .R, that has no function task.
 
 .make() returns promise() with result of target task. so above example means like :  'default' needs 'prereq0' and 'prereq1', 'prereq0' is hello, 'prereq1' will be World after 1 sec later. so 'default' is string hello + World. .make() gets this result and print at .then().
 
@@ -77,11 +82,11 @@ $.make('default');
 ```
 There are 2 classes are exported recipe-js module. RecipeJs class and RecipeNodeJs class. RecipeJS class doesn't access NodeJs API such as FileIO(fs) or child\_process.
 
-RecipeNodeJs class os derived from Recipe.Js class. this class have Nodejs feature. so basically, you should use RecipeNodeJs class.
+RecipeNodeJs class os derived from Recipe.Js class. this class has  Nodejs feature. so basically, you should use RecipeNodeJs class.
 
-.S() and .P() are process execution tasks. you can easy to write and receive external tool's results such as curl without having to write complex child\_process program.
+.S() and .P() are process execution tasks. you can easy to write and receive external tool's results such as curl without having to write complex child\_process programs.
 
-you can pass data into stdin by 2nd argument of .S().  offcourse you can use pipe | inside command line string.  execution is asynchronous.
+you can pass data into stdin by a 2nd argument of .S().  off course you can use pipe | inside command line string.  execution is asynchronous.
 
 ### Inference Rules
 
@@ -109,7 +114,7 @@ $.make('default')
 //% is wildcard, regex is ok like '(.*)\.html','$1.md'
 ```
 
-like GNU make. recipe-js has inference Rules. you can decrare .R() which have wildcard (%) or regex.
+like GNU make. recipe-js have inference Rules. you can declare .R() which have wildcard (%) or regex.
 
 ### File IO(auto load/save)
 
@@ -131,11 +136,11 @@ $.make('default');
 //file system's timestamp is used for update decision
 ```
 
-.F() marks target name as "file name". recipe-js automatically read the file even if there are no recipe for this name.
+.F() marks the target name as "file name". recipe-js automatically read the file even if there is no recipe for this name.
 
-if marked target name is prerequisites or make() target, file is generated and written by passed data.
+if marked target name is prerequisites or make() target, the file is generated and written by passed data.
 
-target name for $.F can have wild card,or regex.
+target name for $.F can have wild card or regex.
 
 ### Cache / Trace / Debug
 ```
@@ -174,7 +179,7 @@ the cache will automatically be loaded at next execute then use the cached value
 
 specifying 'cacheId' instead of 'cacheFile' makes JSON file at ~/.recipe-js/<cacheId>.json . ('cacheFile' is higher priority than 'cacheId'.)
 
-cache file is synced at end of each make() (including internal make for prerequisites)
+a cache file is synced at end of each make() (including internal make for prerequisites)
 
 ```
 $=new RecipeNodeJs({
@@ -275,11 +280,11 @@ child1.make('default')
 //   if you change like above comment, it will be 20 sec
 ```
 
-unlike 'extends' deriving, 'parent' deriving is for sharing result by children.
+unlike 'extends' deriving, 'parent' deriving is for sharing results by children.
 
-this means that result objects is stored in parent object not child object itself. so the object is able to access other child classes.
+this means that result objects are stored in parent object, not child object itself. so the object is able to access other child classes.
 
-recipe-js caches each result of tasks in memory evenif cacheFile option is not specified. so same task will be never called till .remake(target) 
+recipe-js caches each result of tasks in memory even if cacheFile option is not specified. so the same task will be never called till .remake(target) 
 
 ### Command line parser
 
@@ -307,7 +312,7 @@ $.make('default');
 
 .setByArgv() is utility to set prerequisites by command line arguments.
 
-recipe-js knows which relation between -option and tareget name and whether option arg e.g.(-b hello) are necessary or not.
+recipe-js knows which relation between -option and target names and whether option arg e.g.(-b hello) are necessary or not.
 
 --prereq=2=world style options sets target values directly.
 
@@ -338,7 +343,7 @@ $.schedule("+60",'timer3');                 //60sec after (one shot)
 $.run();
 ```
 
-you can use recipe-js as 'cron' server by .run() method of RecipeJs (offcourse RecipeNodeJs is also ok)
+you can use recipe-js as 'cron' server by .run() method of RecipeJs (off course RecipeNodeJs is also ok)
 
 .schedule() schedules .remake() task. 1st arg is time(3 kind.see above example),2nd is target name, 3rd(optional) is id.
 
@@ -356,11 +361,11 @@ $.R('target',(g)=>{
 $.main('target');
 ```
 
-.main is utility of RecipeNodeJs. you can use it like .make(). difference between .make() is print out result evenif target doesn't console.log().
+.main is an utility method. you can use it like .make(). difference between .make() is print out result even if target doesn't console.log().
 
-this is useful if terget recipe just returns value. 
+this is useful if the target recipe just returns value. 
 
-if you pass array of RecipeNodeJs() object in 1st arg and target name in 2nd arg, .main() invokes all of RecipeNodeJs to make same target then wait complete by Promise.all, then print out collected results.
+if you pass an array of RecipeNodeJs() object in 1st arg and target name in 2nd arg, .main() invokes all of RecipeNodeJs to make the same target then wait complete by Promise.all, then print out collected results.
 
 note that unlike .make(), .main doesn't return not promise() and process.exit() inside after print. 
 

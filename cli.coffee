@@ -156,7 +156,13 @@ try
 	$.debugEnabled=debug if debug?
 
 	target=remains[0] ? 'default'
-	$.main target
+	$.make target
+	.then (r)=>
+		process.exit 0
+	.catch (e)=>
+		$.E e.toString()
+		process.exit 1
+
 catch e
 	$.E e.toString()
 	#$.E e
