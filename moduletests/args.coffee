@@ -19,4 +19,4 @@ m.O m.setByArgv process.argv[2..],
 	b:'value1:'
 	f:'flag1'
 
-m.main 'A'
+m.make 'A'

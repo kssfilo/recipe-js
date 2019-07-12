@@ -33,4 +33,4 @@ gc.R 'D','C',(g)->
 	@O JSON.stringify "#{g}D"
 
 
-gc.main 'D'
+gc.make 'D'

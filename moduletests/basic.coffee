@@ -22,4 +22,4 @@ m.R 'god',(g)->
 
 m.R 'chiken',2
 
-m.main 'oyakodon'
+m.make 'oyakodon'

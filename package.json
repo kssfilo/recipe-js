@@ -8,7 +8,8 @@
   },
   "@PARTPIPE@_@PARTPIPE@version": "@PARTPIPE@VERSION@PARTPIPE@",
   "dependencies": {
-    "coffeescript": "2.4.1"
+    "coffeescript": "2.4.1",
+    "configstore": "5.0.0"
   },
   "devDependencies": {
     "coffee-jshint": "1.1.1",

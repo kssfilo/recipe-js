@@ -13,8 +13,8 @@ m.R 'test',['log','result','target'],(g)->
 	else
 		return "#{g.target} OK"
 
-tests=['extends','child','basic','shell','loop','args','cache','abstruct']
-#tests.push('schedule')
+tests=['extends','child','basic','shell','loop','args','cache','cachefile','clearcache','cacheid','abstruct']
+tests.push('schedule')
 
 ts=tests.map (x)->
 	r=new RecipeNodeJs

@@ -58,6 +58,7 @@ class RecipeJs
 			func:func
 
 	cache:(obj,v,expireSeconds=null)->
+		@C "registering cache obj:#{obj},value:#{v},expireSeconds:#{expireSeconds}"
 		cacheObj=
 			v:v
 			expire:if expireSeconds? then new Date().getTime()+expireSeconds*1000 else null
@@ -341,12 +342,34 @@ class RecipeNodeJs extends RecipeJs
 	constructor:(g={})->
 		super g
 
-		if g.cacheFile and not g.clearCache
-			{@cacheFile}=g
+		unless g.clearCache
+			{@cacheFile,@cacheId}=g
+
+			if !@cacheFile and typeof(@cacheId)=='string'
+				path=require 'path'
+				
+				confPath=path.join process.env["HOME"],'.recipe-js'
+				try
+					fs=require 'fs'
+					@T "checking #{confPath}"
+					if !fs.existsSync confPath
+						@T "#{confPath} doesn't exist. try mkdir"
+						fs.mkdirSync confPath
+
+					unless fs.statSync(confPath)?.isDirectory()
+						@E "#{confPath} is not directory.cache will not be saved."
+					else
+						@cacheFile=path.join confPath,"#{@cacheId}.json"
+
+				catch e
+					@E e
+
+			@T "cacheFile:#{@cacheFile}"
 			@loadCache()
 
 		@_files={}
 		@_saveFiles={}
+		@_isCacheDirty=false
 
 	loadCache:->
 		try
@@ -357,7 +380,22 @@ class RecipeNodeJs extends RecipeJs
 			@C 'cacheFile:not found'
 			@_cache={}
 
+	clearCache:()->
+		@C "clearCache()"
+		@_objs={}
+		@_cache={}
+		@_isCacheDirty=true
+		@saveCache()
+
+	cache:(obj,v,expireSeconds=null)->
+		@_isCacheDirty=true
+		super obj,v,expireSeconds
+
 	saveCache:->
+		unless @_isCacheDirty
+			@C "cache has not changed. skip saving."
+			return
+
 		for k,v of @_cache
 			if v.isFile
 				delete @_cache[k]
@@ -365,6 +403,7 @@ class RecipeNodeJs extends RecipeJs
 		return unless @cacheFile?
 		@C "saveCache:#{JSON.stringify @_cache}"
 		require('fs').writeFileSync @cacheFile,JSON.stringify @_cache
+		@_isCacheDirty=false
 
 	X:(cmd)->
 		new Promise (ok,ng)=>
@@ -548,6 +587,7 @@ class RecipeNodeJs extends RecipeJs
 				require('fs').writeFileSync obj,g
 				delete @_saveFiles[obj]
 				delete @_cache[obj]
+			@saveCache()
 			g
 
 	main:(objOrArray,arrayTarget=null)->
@@ -556,7 +596,6 @@ class RecipeNodeJs extends RecipeJs
 				Promise.all(objOrArray.map((x)->x.make arrayTarget))
 				.then (xs)=>
 					@O xs if xs?
-					objOrArray.forEach (x)->x.saveCache()
 					process.exit 0
 				.catch (e)=>
 					@E e
@@ -564,7 +603,7 @@ class RecipeNodeJs extends RecipeJs
 			else
 				@make objOrArray
 				.then (x)=>
-					@saveCache()
+					@O x
 					process.exit 0
 				.catch (e)=>
 					@E e

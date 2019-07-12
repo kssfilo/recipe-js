@@ -17,4 +17,4 @@ m.R 'proc2','proc1',m.P 'sed "s/\\(.*\\)Country/\|\\1World\|/"'
 
 m.R 'proc3','proc2',(g)->console.log JSON.stringify g
 
-m.main 'proc3'
+m.make 'proc3'

@@ -2,7 +2,7 @@
 
 NAME=recipe-js
 BINNAME=recipe
-VERSION=0.5.7
+VERSION=1.0.0
 DESCRIPTION=A gulp/GNU make like task launcher.Supports Dependencies/Inference Rules/Promise/Child Process/Cache/Deriving/CLI.
 KEYWORDS=make build tool gulp task launcher Promise child_process cache CLI command-line stdin async async.js
 NODEVER=8
