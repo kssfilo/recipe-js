@@ -116,6 +116,19 @@ $.make('default')
 
 like GNU make. recipe-js have inference Rules. you can declare .R() which have wildcard (%) or regex.
 
+you can know actual target and prerequisites in recipes by 2nd argument of .R() callback like below.
+
+```
+$.R('html_%',['url_%','useragent'],(g,info)=>{
+	console.log(`actual target is '${info.target}'`);
+	console.log(`actual prerequisites are ${info.deps}`);
+
+	return request_promise({url:g[0]),headers:{'User-Agent':g[1]}});
+});
+//-> actual target is 'html_google'
+//   actual prerequisites are ['url_google','useragent']'
+```
+
 ### File IO(auto load/save)
 
 ```
