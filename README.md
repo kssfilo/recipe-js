@@ -402,6 +402,7 @@ see https://www.npmjs.com/package/recipe-js
 
 ## Change Log
 
+- 1.2.1:bugfix, boolean value are always returned at if .make() called 2 or more times.
 - 1.2.0:adds 2nd argument of .F() to specify 'utf8' or 'binary'
 - 1.1.0:adds .clearCache() param for clear individual object. see cache section
 - 1.0.0:cacheId constructor option to save cache into ~/.recipe-js / supports shebang for Recipefile / scheduler

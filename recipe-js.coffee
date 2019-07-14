@@ -182,7 +182,8 @@ class RecipeJs
 	make:(obj,stack=[])->
 		@C "make #{obj},stack:[#{stack}]"
 
-		if h=@get(obj)?
+		h=@get(obj)
+		if h?
 			@C "has #{obj}=#{h}"
 			return Promise.resolve h
 
