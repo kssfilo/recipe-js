@@ -208,7 +208,7 @@ $.R('default','prereq0',(g)=>console.log(g));
 
 $.make('default')
 .then(()=>{
-	// $.clearCache();  <- if you remove //  , then result will be 0,1,2
+	// $.clearCache();  <- if you remove // , then result will be 0,1,2
     setTimeout(()=>
         $.remake('default')
     ,1000);
@@ -225,6 +225,8 @@ $.make('default')
 .remake(target) method clears memory cache only. so tasks which returns .cache() are never called till expired time evenif .remake() call.
 
 if you want to clear file cache, set 'clearCache:true' option at constructor. or call .clearCache() dynamically(never call this method inside task).
+
+you can .clearCache() for individual object like .clearCache('prereq0') . if omit, all cache data will be removed.
 
 ### Deriving (extends)
 
@@ -400,6 +402,7 @@ see https://www.npmjs.com/package/recipe-js
 
 ## Change Log
 
+- 1.1.0:adds .clearCache() param for clear individual object. see cache section
 - 1.0.0:cacheId constructor option to save cache into ~/.recipe-js / supports shebang for Recipefile / scheduler
 - 0.5.5:changed substitution '%'->'.+' to '%'->'[^.]+'.
 - 0.5.4:added $.X(cmd) for shell execution(supports redirection but cant inject into stdin), $.PX(cmd) is shorthand of ()=>$.X(cmd)

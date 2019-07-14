@@ -380,10 +380,14 @@ class RecipeNodeJs extends RecipeJs
 			@C 'cacheFile:not found'
 			@_cache={}
 
-	clearCache:()->
-		@C "clearCache()"
-		@_objs={}
-		@_cache={}
+	clearCache:(objOrNull=null)->
+		@C "clearCache(#{objOrNull})"
+		if typeof(objOrNull)=='string'
+			delete @_objs[objOrNull]
+			delete @_cache[objOrNull]
+		else
+			@_objs={}
+			@_cache={}
 		@_isCacheDirty=true
 		@saveCache()
 

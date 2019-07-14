@@ -1,1 +1,1 @@
-{"log":{"v":"hello\nfromcache\nhello\n","expire":null,"updated":1562938613944}}
+{"log":{"v":"[ 'hello', 'world', cache: 'hello', cache2: 'world' ]\n[ 'fromcache', 'fromcache', cache: 'fromcache', cache2: 'fromcache' ]\n[ 'fromcache', 'world', cache: 'fromcache', cache2: 'world' ]\n[ 'hello', 'world', cache: 'hello', cache2: 'world' ]\n","expire":null,"updated":1563078158210}}

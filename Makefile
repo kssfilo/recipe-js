@@ -2,7 +2,7 @@
 
 NAME=recipe-js
 BINNAME=recipe
-VERSION=1.0.3
+VERSION=1.1.0
 DESCRIPTION=A gulp/GNU make like task launcher with CLI tool.Supports Dependencies/Cache/Inference Rules/Promise/Child Process/Deriving/Scheduler.
 KEYWORDS=make build tool gulp task launcher Promise child_process exec spawn cache CLI command-line stdin async scheduler
 NODEVER=8
@@ -47,7 +47,7 @@ moduletest:$(ALL)
 pack:$(ALL) test.passed|$(DESTDIR)
 
 clean:
-	rm -r $(DESTDIR) test.passed node_modules 2>&1 ;true
+	rm -r $(DESTDIR) test.passed node_modules package-lock.json 2>&1 ;true
 
 help:
 	@echo "Targets:$(COMMANDS)"
