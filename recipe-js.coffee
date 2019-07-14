@@ -478,11 +478,11 @@ class RecipeNodeJs extends RecipeJs
 	PS:(cmd)->
 		(x)=>@S cmd,x
 
-	F:(extentionOrFilenameOrArray)->
+	F:(extentionOrFilenameOrArray,kindOfFile='utf8')-> #utf8/binary
 		if extentionOrFilenameOrArray instanceof Array
-			@_files[@_normalizeTarget i]=true for i in extentionOrFilenameOrArray
+			@_files[@_normalizeTarget i]=kindOfFile for i in extentionOrFilenameOrArray
 		else
-			@_files[@_normalizeTarget extentionOrFilenameOrArray]=true
+			@_files[@_normalizeTarget extentionOrFilenameOrArray]=kindOfFile
 		null
 	
 	setByArgv:(args,dict=null)->
@@ -514,9 +514,19 @@ class RecipeNodeJs extends RecipeJs
 
 		remaining
 
+	getKindOfFile:(obj)->
+		return @_files[obj] if @_files[obj]?
+		r=null
+		for k,v of @_files
+			regex=new RegExp "^#{k}$"
+			if m=obj.match regex
+				r=v
+				break
+		r
+
 	isFile:(obj)->
 		return true if @_files[obj]?
-		r=false
+		r=null
 		for k of @_files
 			regex=new RegExp "^#{k}$"
 			if m=obj.match regex
@@ -556,7 +566,7 @@ class RecipeNodeJs extends RecipeJs
 			super obj,stack
 	
 	load:(obj)->
-		@C "file load #{obj}"
+		@C "file load #{obj}:#{@getKindOfFile(obj)}"
 
 		c=@_cache[obj]
 
@@ -566,9 +576,16 @@ class RecipeNodeJs extends RecipeJs
 			return v
 
 		try
-			stat=require('fs').statSync obj
+			fs=require 'fs'
+			stat=fs.statSync obj
+			kind=@getKindOfFile(obj)
+			data=fs.readFileSync obj,(if kind isnt 'binary' then kind else null)
+			if data? and kind is 'utf8'
+				@C "converting to string"
+				data=data.toString()
+
 			@_cache[obj]=
-				v:require('fs').readFileSync(obj)?.toString()
+				v:data
 				updated:new Date(stat.mtime).getTime()
 				expire:null
 				checkDepends:true
@@ -588,7 +605,8 @@ class RecipeNodeJs extends RecipeJs
 		.then (g)=>
 			if @_saveFiles[obj]
 				@C "saveFile:#{obj}"
-				require('fs').writeFileSync obj,g
+				kind=@getKindOfFile(obj)
+				require('fs').writeFileSync obj,g,(if kind isnt 'binary' then kind else null)
 				delete @_saveFiles[obj]
 				delete @_cache[obj]
 			@saveCache()

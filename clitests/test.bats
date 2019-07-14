@@ -12,6 +12,10 @@
 	[ "$(echo 'RecipeJs' >test.txt;rm -f test.html;../dist/cli.js -f make.rcp;sleep 1;echo 'RecipeJs2'>test.txt;../dist/cli.js -f make.rcp;cat test.html;rm test.html;rm test.md;rm test.txt)" = "<h1>RecipeJs2</h1>" ]
 }
 
+@test "make-bin" {
+	[ "$(dd if=/dev/urandom of=test.png bs=1k count=1 2>/dev/null >/dev/null ;rm -f test.bin;../dist/cli.js -f make-bin.rcp;diff test.bin test.png 2>&1;rm test.bin test.png)" = "" ]
+}
+
 @test "make-nopipe" {
 	[ "$(echo 'RecipeJs' >test.txt;rm -f test.md;rm -f test.html;../dist/cli.js -f make-nopipe.rcp;cat test.html;rm test.html;rm test.md;rm test.txt)" = "RecipeJs" ]
 }

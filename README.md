@@ -137,8 +137,8 @@ RecipeNodeJs=require('recipe-js').RecipeNodeJs;
 $=new RecipeNodeJs(); 
 
 // $.F tells that specified targets(extension/filename) are files.
-$.F('%.md');
-$.F('%.html');
+$.F('%.md','utf8');
+$.F('%.html','utf8');
 
 $.R('%.html','%.md',$.P('md2html'));
 
@@ -153,7 +153,7 @@ $.make('default');
 
 if marked target name is prerequisites or make() target, the file is generated and written by passed data.
 
-target name for $.F can have wild card or regex.
+target name for $.F can have wild card(%) or regex(automatically enclosed by ^$ e.g (.*).jpg will be ^(.*).jpg$ ). 2nd argument is file encoding, 'utf8' or 'binary'.
 
 ### Cache / Trace / Debug
 ```
@@ -402,6 +402,7 @@ see https://www.npmjs.com/package/recipe-js
 
 ## Change Log
 
+- 1.2.0:adds 2nd argument of .F() to specify 'utf8' or 'binary'
 - 1.1.0:adds .clearCache() param for clear individual object. see cache section
 - 1.0.0:cacheId constructor option to save cache into ~/.recipe-js / supports shebang for Recipefile / scheduler
 - 0.5.5:changed substitution '%'->'.+' to '%'->'[^.]+'.

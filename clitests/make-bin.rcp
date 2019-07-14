@@ -1,0 +1,14 @@
+#!/usr/bin/env recipe
+
+#$.set 'TRACE',true
+#$.set 'DEBUG',true
+
+$.F '(.+)\.bin','binary'
+$.F ['%.jpg','(.+)\.png'],'binary'
+
+$.R '(.+)\.bin','$1.png',(g)=>g
+
+$.R 'default',['test.bin']
+
+$.make 'default'
+
