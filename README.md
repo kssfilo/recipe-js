@@ -420,3 +420,7 @@ see https://www.npmjs.com/package/recipe-js
 - 0.2.0:added Inference Rules
 - 0.1.0:first release
 
+## Ideas
+
+- supporting multiple target in .make()'s 1st arg
+
